@@ -1,0 +1,15 @@
+cartridgecluster.router:
+  advertise_uri: localhost:3301
+  http_port: 8081
+
+cartridgecluster.s1-master:
+  advertise_uri: localhost:3302
+  http_port: 8082
+
+cartridgecluster.s1-replica:
+  advertise_uri: localhost:3303
+  http_port: 8083
+
+cartridgecluster-stateboard:
+  listen: localhost:4401
+  password: passwd
