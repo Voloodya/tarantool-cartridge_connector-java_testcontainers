@@ -1,10 +1,8 @@
 package com.app.config;
 
-import com.app.JavaClientApplication;
 import io.tarantool.driver.api.TarantoolClient;
 import io.tarantool.driver.api.TarantoolClientFactory;
 import io.tarantool.driver.api.TarantoolResult;
-import io.tarantool.driver.api.space.TarantoolSpaceOperations;
 import io.tarantool.driver.api.tuple.DefaultTarantoolTupleFactory;
 import io.tarantool.driver.api.tuple.TarantoolTuple;
 import io.tarantool.driver.api.tuple.TarantoolTupleFactory;
@@ -12,7 +10,6 @@ import io.tarantool.driver.auth.SimpleTarantoolCredentials;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;

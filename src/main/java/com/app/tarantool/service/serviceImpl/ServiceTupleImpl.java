@@ -4,11 +4,16 @@ import com.app.dto.RouterSessionContextsDTO;
 import com.app.tarantool.service.ServiceTuple;
 import io.tarantool.driver.api.TarantoolResult;
 import io.tarantool.driver.api.tuple.TarantoolTuple;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
+@Service
+@RequiredArgsConstructor
 public class ServiceTupleImpl implements ServiceTuple {
 
     @Override

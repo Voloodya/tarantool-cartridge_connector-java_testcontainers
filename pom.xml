@@ -17,6 +17,7 @@
         <tarantool.cartridje.connector.local.version>1.0.0-SNAPSHOT</tarantool.cartridje.connector.local.version>
         <testcontainers.tarantool.cartridge.version>0.4.7</testcontainers.tarantool.cartridge.version>
         <testcontainers.tarantool.cartridge.local.version>1.0.0-SNAPSHOT</testcontainers.tarantool.cartridge.local.version>
+        <mockito.version>4.4.0</mockito.version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -48,6 +49,12 @@
             <groupId>io.tarantool</groupId>
             <artifactId>cartridge-driver</artifactId>
             <version>${tarantool.cartridje.connector.local.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

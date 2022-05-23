@@ -24,6 +24,14 @@ import org.testcontainers.containers.TarantoolCartridgeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.utility.MountableFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -39,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class JavaClientApplicationTests {
+public class JavaClientApplicationIntegrationTests {
 
     private static final String SPACE_NAME = "spaceTest";
     private static List<Object> valuesInsert;
@@ -63,7 +71,7 @@ public class JavaClientApplicationTests {
                 .withCopyFileToContainer(MountableFile.forClasspathResource("cartridge"), "/app")
                 .withStartupTimeout(Duration.ofSeconds(300))
                 .withLogConsumer(new Slf4jLogConsumer(
-                        LoggerFactory.getLogger(JavaClientApplicationTests.class)));
+                        LoggerFactory.getLogger(JavaClientApplicationIntegrationTests.class)));
         try {
             if (!testContainer.isRunning()) {
                 testContainer.start();
@@ -132,14 +140,53 @@ public class JavaClientApplicationTests {
         };
     }
 
-    @AfterClass
-    public static void disconnect() {
-        testContainer.stop();
-    }
-
     @Before
     public void clearSpace() {
         serviceStorage.truncate(SPACE_NAME);
+    }
+
+    @Test
+    public void testMigrationsCurl() throws IOException, InterruptedException {
+        String urlStr = "http://" + testContainer.getRouterHost() + ":" + "8081" + "/migrations/up";
+        int code = -1;
+        org.testcontainers.containers.Container.ExecResult answer = testContainer.execInContainer("curl", "-X", "POST", urlStr);
+        code = answer.getExitCode();
+        Assert.assertEquals(0, code);
+    }
+
+    @Test
+    public void testMigrationsHttp() throws Exception {
+        HttpURLConnection connection;
+        OutputStream os = null;
+        InputStreamReader inputStreamReader = null;
+        BufferedReader bfR = null;
+        StringBuilder strBuilder = new StringBuilder();
+
+        Map<String, String> bodyHttpPostRequest = new HashMap<>();
+        byte[] outSteamByte = bodyHttpPostRequest.toString().getBytes(StandardCharsets.UTF_8);
+
+        try {
+            String urlStr = "http://" + testContainer.getRouterHost() + ":" + testContainer.getAPIPort() + "/migrations/up";
+            connection = createConnection(urlStr);
+            os = connection.getOutputStream();
+            os.write(outSteamByte);
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                inputStreamReader = new InputStreamReader(connection.getInputStream());
+                bfR = new BufferedReader(inputStreamReader);
+                String line;
+                while ((line = bfR.readLine()) != null) {
+                    strBuilder.append(line);
+                }
+            }
+        } catch (MalformedURLException ex) {
+        } catch (IOException e) {
+        } finally {
+            inputStreamReader.close();
+            os.close();
+            bfR.close();
+        }
+        Assert.assertTrue(strBuilder.toString().contains("applied"));
     }
 
     @Test
@@ -217,6 +264,27 @@ public class JavaClientApplicationTests {
         assertNotNull(selectTuples);
         assertTrue(selectTuples.size() == 2);
         assertNotNull(selectTuples.get(0).getString(0));
+    }
+
+    public HttpURLConnection createConnection(String urlStr) throws IOException {
+        HttpURLConnection connection = null;
+        URL url = new URL(urlStr);
+
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setConnectTimeout(200);
+        connection.setReadTimeout(200);
+        connection.connect();
+
+        return connection;
+    }
+
+    @AfterClass
+    public static void disconnect() {
+        testContainer.stop();
     }
 
 }

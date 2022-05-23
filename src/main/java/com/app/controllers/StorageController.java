@@ -20,12 +20,12 @@ import java.util.List;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
-@RestController("spaceTest")
+@RestController
 public class StorageController {
 
     private static final String SPACE_NAME = "spaceTest";
-    private ServiceStorage serviceStorage;
-    private ServiceTuple serviceTuple;
+    private final ServiceStorage serviceStorage;
+    private final ServiceTuple serviceTuple;
 
     @GetMapping("all")
     public List<RouterSessionContextsDTO> getAll() {
@@ -88,7 +88,7 @@ public class StorageController {
         serviceStorage.truncate(SPACE_NAME);
     }
 
-    @GetMapping("storage")
+    @GetMapping("testcontroller")
     public String storage() {
         return "Hello storage";
     }
